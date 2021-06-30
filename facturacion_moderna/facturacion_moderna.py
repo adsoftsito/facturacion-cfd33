@@ -5,6 +5,7 @@ from suds import WebFault
 from suds.client import Client
 from lxml import etree as ET
 import logging
+from suds.xsd.doctor import ImportDoctor, Import
 
 class Cliente:
   def __init__(self, url, opciones = {}, debug = False):
@@ -15,14 +16,23 @@ class Cliente:
     for key, value in opciones.iteritems():
       if key in ['emisorRFC', 'UserID', 'UserPass']:
         self.opciones.update({ key: value })
-
+    print ('init client ok')
+    
   def timbrar(self, src, opciones = { 'generarCBB': False, 'generarTXT': False, 'generarPDF': False}):
     try:
       # en caso de que src sea una ruta a archivo y no una cadena, abrir y cargar ruta
+      #print(src)
+      #print(self)
+      # print(opciones)
       if os.path.isfile(src): src = open(src, 'r').read()
       opciones['text2CFDI'] = base64.b64encode(src)
       self.opciones.update(opciones)
-      cliente = Client(self.url)
+      print(opciones)      
+      print(self.url)
+      imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
+      cliente = Client(self.url, doctor=ImportDoctor(imp))
+      print(cliente)
+      print(self.url)
       respuesta = cliente.service.requestTimbrarCFDI(self.opciones)
 
       for propiedad in ['xml', 'pdf', 'png', 'txt']:
@@ -46,6 +56,7 @@ class Cliente:
         self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % (cliente.last_sent(), e.fault.faultcode, e.fault.faultstring))
       return False
     except Exception, e:
+      print e
       self.__dict__['codigo_error'] = 'Error desconocido'
       self.__dict__['error'] = e.message
       return False

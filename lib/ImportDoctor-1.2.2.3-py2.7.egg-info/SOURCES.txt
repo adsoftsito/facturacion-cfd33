@@ -1,0 +1,14 @@
+COPYING.txt
+MANIFEST.in
+README.txt
+setup.cfg
+setup.py
+ImportDoctor/__init__.py
+ImportDoctor/doctor_base.py
+ImportDoctor.egg-info/PKG-INFO
+ImportDoctor.egg-info/SOURCES.txt
+ImportDoctor.egg-info/dependency_links.txt
+ImportDoctor.egg-info/entry_points.txt
+ImportDoctor.egg-info/top_level.txt
+ImportDoctor/util/__init__.py
+ImportDoctor/util/test_battery.py

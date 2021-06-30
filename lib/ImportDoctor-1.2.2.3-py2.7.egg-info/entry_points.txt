@@ -1,0 +1,3 @@
+[console_scritps]
+ImportDoctor = ImportDoctor:main
+

@@ -1,0 +1,21 @@
+Metadata-Version: 1.1
+Name: ImportDoctor
+Version: 1.2.2.3
+Summary: Python file formatter for import statements
+Home-page: https://github.com/freetheinterns/import_doctor
+Author: Ted Tenedorio
+Author-email: tedtenedorio@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Keywords: import tool format development
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
