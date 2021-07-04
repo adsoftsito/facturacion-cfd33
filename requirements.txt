@@ -7,4 +7,4 @@ Werkzeug==0.14.1
 suds==0.4
 lxml==4.6.3
 ImportDoctor==1.2.2.3
-
+certifi==2021.5.30

@@ -67,7 +67,7 @@ def sella_xml(cfdi, numero_certificado, archivo_cer, archivo_pem):
   xdoc.attrib['Sello'] = sello
   
   #print (ET.tostring(xdoc))
-  print ('sello ok')
+  #print ('sello ok')
   return ET.tostring(xdoc)
 
 def genera_xml(rfc_emisor):
@@ -75,7 +75,7 @@ def genera_xml(rfc_emisor):
   fecha_actual = str(  (datetime.now() - timedelta(hours=6, minutes=0)).isoformat())[:19]
   # fecha_actual = str(datetime.now(pytz.timezone('US/Pacific')))
 
-  print (fecha_actual)
+  #print (fecha_actual)
 
  
   cfdi = """<?xml version="1.0" encoding="UTF-8"?>
@@ -105,11 +105,13 @@ def genera_xml(rfc_emisor):
 </cfdi:Impuestos>
 </cfdi:Comprobante>
 """.format(**locals())
-  print ("cfdi ok")
+  #print ("cfdi ok")
   return cfdi
 
-#if __name__ == '__main__':
 @app.route('/')
 def hello_world():
   prueba_timbrado()
-  return 'cfdi, xml, pdf ok'
+  return 'cfdi, xml, pdf ==> ok'
+
+if __name__ == "__main__":
+  app.run(host='0.0.0.0')

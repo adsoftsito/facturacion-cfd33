@@ -5,7 +5,9 @@ from suds import WebFault
 from suds.client import Client
 from lxml import etree as ET
 import logging
-from suds.xsd.doctor import ImportDoctor, Import
+#from suds.xsd.doctor import ImportDoctor, Import
+import ssl
+#import suds_requests
 
 class Cliente:
   def __init__(self, url, opciones = {}, debug = False):
@@ -24,15 +26,32 @@ class Cliente:
       #print(src)
       #print(self)
       # print(opciones)
+
+      logging.basicConfig(level=logging.INFO)
+      if __debug__:
+        logging.getLogger('suds.client').setLevel(logging.DEBUG)
+      else:
+        logging.getLogger('suds.client').setLevel(logging.CRITICAL)
+
+      try:
+        _create_unverified_https_context = ssl._create_unverified_context
+      except AttributeError:
+        pass
+      else:
+        ssl._create_default_https_context = _create_unverified_https_context
+
       if os.path.isfile(src): src = open(src, 'r').read()
       opciones['text2CFDI'] = base64.b64encode(src)
       self.opciones.update(opciones)
-      print(opciones)      
-      print(self.url)
-      imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
-      cliente = Client(self.url, doctor=ImportDoctor(imp))
-      print(cliente)
-      print(self.url)
+      #print(opciones)      
+      #print(self.url)
+      #imp = Import('http://schemas.xmlsoap.org/soap/encoding/')
+#      cliente = Client(self.url, doctor=ImportDoctor(imp))
+      #cliente = Client(self.url, transport=suds_requests.RequestsTransport())
+      cliente = Client(self.url)
+
+      #print(cliente)
+      #print(self.url)
       respuesta = cliente.service.requestTimbrarCFDI(self.opciones)
 
       for propiedad in ['xml', 'pdf', 'png', 'txt']:
