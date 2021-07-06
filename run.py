@@ -1,5 +1,6 @@
 # encoding: utf-8
-from flask import Flask
+from flask import Flask, request
+
 from facturacion_moderna import facturacion_moderna
 from datetime import datetime, timedelta
 import base64
@@ -7,8 +8,17 @@ from M2Crypto import RSA
 from lxml import etree as ET
 import hashlib
 import os
+import json
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
-app = Flask(__name__)
+app = Flask(__name__,
+           static_url_path='',
+           static_folder='comprobantes')
+
+mycomprobante="";
+content="";
 
 def prueba_timbrado(debug = False):
   
@@ -38,6 +48,13 @@ def prueba_timbrado(debug = False):
     folder = 'comprobantes'
     if not os.path.exists(folder): os.makedirs(folder)
     comprobante = os.path.join(folder, cliente.uuid)
+    print (comprobante)
+
+    global mycomprobante
+    mycomprobante = cliente.uuid
+
+    print(mycomprobante)
+
     for extension in ['xml', 'pdf', 'png', 'txt']:
       if hasattr(cliente, extension):
         with open(("%s.%s" % (comprobante, extension)), 'wb' if extension in ['pdf','png'] else 'w') as f: f.write(getattr(cliente, extension))
@@ -75,11 +92,23 @@ def genera_xml(rfc_emisor):
   fecha_actual = str(  (datetime.now() - timedelta(hours=6, minutes=0)).isoformat())[:19]
   # fecha_actual = str(datetime.now(pytz.timezone('US/Pacific')))
 
-  #print (fecha_actual)
-
+  serie = content["serie"]
+  folio = content["folio"]
+  print (serie)
+  print (folio)
+  formapago=content["formapago"]
+  condicionesdepago=content["condicionesdepago"]
+  subtotal=content["subtotal"] 
+  descuento=content["descuento"] 
+  moneda=content["moneda"] 
+  total=content["total"] 
+  tipodecomprobante=content["tipodecomprobante"] 
+  metodopago=content["metodopago"] 
+  lugarexpedicion=content["lugarexpedicion"] 
+ 
  
   cfdi = """<?xml version="1.0" encoding="UTF-8"?>
-<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd" Version="3.3" Serie="A" Folio="01" Fecha="{fecha_actual}" Sello="" FormaPago="03" NoCertificado="" Certificado="" CondicionesDePago="CONTADO" SubTotal="1850" Descuento="175.00" Moneda="MXN" Total="1943.00" TipoDeComprobante="I" MetodoPago="PUE" LugarExpedicion="68050">
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd" Version="3.3" Serie="{serie}" Folio="{folio}" Fecha="{fecha_actual}" Sello="" FormaPago="{formapago}" NoCertificado="" Certificado="" CondicionesDePago="{condicionesdepago}" SubTotal="{subtotal}" Descuento="{descuento}" Moneda="{moneda}" Total="{total}" TipoDeComprobante="{tipodecomprobante}" MetodoPago="{metodopago}" LugarExpedicion="{lugarexpedicion}">
   <cfdi:Emisor Rfc="{rfc_emisor}" Nombre="FACTURACION MODERNA SA DE CV" RegimenFiscal="601"/>
   <cfdi:Receptor Rfc="XAXX010101000" Nombre="PUBLICO EN GENERAL" UsoCFDI="G01"/>
   <cfdi:Conceptos>
@@ -108,10 +137,26 @@ def genera_xml(rfc_emisor):
   #print ("cfdi ok")
   return cfdi
 
-@app.route('/')
+#serie = ""
+#folio = ""
+
+@app.route('/', methods=['GET','POST'])
 def hello_world():
+  global serie, folio, content
+  content = request.json
+  print (content)
+  #content = json.dumps(content)
+#  serie = content["serie"]
+#  folio = content["folio"]
+#  print (serie)
+#  print (folio)
+
   prueba_timbrado()
-  return 'cfdi, xml, pdf ==> ok'
+  result = (request.host_url) + mycomprobante
+
+  data_set = {"xml": result + '.xml', "pdf": result + '.pdf'}
+
+  return json.dumps(data_set)
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0')
