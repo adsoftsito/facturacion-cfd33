@@ -29,6 +29,7 @@ class Cliente:
 
       logging.basicConfig(level=logging.INFO)
       if __debug__:
+        #logging.getLogger('suds.client').setLevel(logging.CRITICAL)
         logging.getLogger('suds.client').setLevel(logging.DEBUG)
       else:
         logging.getLogger('suds.client').setLevel(logging.CRITICAL)
@@ -63,9 +64,9 @@ class Cliente:
         tfd = xml_cfdi.xpath('//tfd:TimbreFiscalDigital', namespaces={"tfd": "http://www.sat.gob.mx/TimbreFiscalDigital"})
         self.__dict__['uuid'] = tfd[0].get('UUID')
 
-      if self.debug:
-        self.logger.info("\nSOAP request:\n %s" % cliente.last_sent())
-        self.logger.info("\nSOAP response:\n %s" % cliente.last_received())
+      #if self.debug:
+        #self.logger.info("\nSOAP request:\n %s" % cliente.last_sent())
+        #self.logger.info("\nSOAP response:\n %s" % cliente.last_received())
 
       return True
     except WebFault, e:
@@ -73,6 +74,8 @@ class Cliente:
       self.__dict__['error'] = e.fault.faultstring
       if self.debug:
         self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % (cliente.last_sent(), e.fault.faultcode, e.fault.faultstring))
+        #self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % ("--", e.fault.faultcode, e.fault.faultstring))
+
       return False
     except Exception, e:
       print e
