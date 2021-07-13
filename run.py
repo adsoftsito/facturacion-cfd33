@@ -108,10 +108,14 @@ def genera_xml(rfc_emisor):
   emisor = content["emisor"]
   receptor = content["receptor"]
   conceptos = content["conceptos"]
-  print("==descuentos total ==")
-  print(totaldescuento)
+  total_impuestos = content["impuestos"]
+  total_impuestos_trasladados = total_impuestos["totalimpuestostrasladados"]
+  total_traslados = total_impuestos["traslados"]
 
-  #print (conceptos)
+  print("== total impuestos trasladados ==")
+  print(total_impuestos_trasladados)
+
+  print (total_traslados)
   myconceptos=""
   for concepto in conceptos:
     claveprodserv = concepto["claveprodserv"]
