@@ -112,10 +112,28 @@ def genera_xml(rfc_emisor):
   total_impuestos_trasladados = total_impuestos["totalimpuestostrasladados"]
   total_traslados = total_impuestos["traslados"]
 
-  print("== total impuestos trasladados ==")
-  print(total_impuestos_trasladados)
+  #print("== total impuestos trasladados ==")
+  #print(total_impuestos_trasladados)
 
-  print (total_traslados)
+  # print (total_traslados)
+  mytotal_traslados = ""
+
+  for totaltraslado in total_traslados:
+    # base = traslado["base"]
+    totaltraslado_impuesto = totaltraslado["impuesto"]
+    totaltraslado_tipofactor = totaltraslado["tipofactor"]
+    totaltraslado_tasaocuota = totaltraslado["tasaocuota"]
+    totaltraslado_importe = totaltraslado["importe"]
+
+    mytotal_traslados= mytotal_traslados + """<cfdi:Traslado Impuesto="{totaltraslado_impuesto}" TipoFactor="{totaltraslado_tipofactor}" TasaOCuota="{totaltraslado_tasaocuota}" Importe="{totaltraslado_importe}"/>""".format(**locals())
+
+  if mytotal_traslados != "":
+      mytotal_traslados = "<cfdi:Traslados>" + mytotal_traslados + "</cfdi:Traslados>"
+  3#print("total traslados ...")
+  print(mytotal_traslados)
+
+
+
   myconceptos=""
   for concepto in conceptos:
     claveprodserv = concepto["claveprodserv"]
@@ -154,8 +172,8 @@ def genera_xml(rfc_emisor):
 </cfdi:Impuestos>
 </cfdi:Concepto>
 """.format(**locals())
-  print("conceptos - traslados")
-  print(myconceptos)
+  #print("conceptos - traslados")
+  #print(myconceptos)
 
   emisor_rfc = rfc_emisor #emisor["rfc"] 
   emisor_nombre = emisor["nombre"]
@@ -165,46 +183,28 @@ def genera_xml(rfc_emisor):
   receptor_nombre = receptor["nombre"]
   receptor_usocfdi = receptor["usocfdi"]
 
-  conceptos="""
-    <cfdi:Concepto ClaveProdServ="01010101" NoIdentificacion="AULOG001" Cantidad="5" ClaveUnidad="H87" Unidad="Pieza" Descripcion="Aurriculares USB Logitech" ValorUnitario="350.00" Importe="1750.00" Descuento="175.00">
-      <cfdi:Impuestos>
-        <cfdi:Traslados>
-          <cfdi:Traslado Base="1575.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="252.00"/>
-      </cfdi:Traslados>
-  </cfdi:Impuestos>
-</cfdi:Concepto>
-<cfdi:Concepto ClaveProdServ="43201800" NoIdentificacion="USB" Cantidad="1" ClaveUnidad="H87" Unidad="Pieza" Descripcion="Memoria USB 32gb marca Kingston" ValorUnitario="100.00" Importe="100.00">
-  <cfdi:Impuestos>
-    <cfdi:Traslados>
-      <cfdi:Traslado Base="100.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="16.00"/>
-  </cfdi:Traslados>
-</cfdi:Impuestos>
-</cfdi:Concepto>
-""".format(**locals())
 
-  print('conceptos')
-  print(conceptos)
-  print('----------')
+  #print('conceptos')
+  #print(conceptos)
+  #print('----------')
   cfdi = """<?xml version="1.0" encoding="UTF-8"?>
 <cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd" Version="3.3" Serie="{serie}" Folio="{folio}" Fecha="{fecha_actual}" Sello="" FormaPago="{formapago}" NoCertificado="" Certificado="" CondicionesDePago="{condicionesdepago}" SubTotal="{subtotal}" Descuento="{totaldescuento}" Moneda="{moneda}" Total="{total}" TipoDeComprobante="{tipodecomprobante}" MetodoPago="{metodopago}" LugarExpedicion="{lugarexpedicion}">
   <cfdi:Emisor Rfc="{emisor_rfc}" Nombre="{emisor_nombre}" RegimenFiscal="{emisor_regimenfiscal}"/>
   <cfdi:Receptor Rfc="{receptor_rfc}" Nombre="{receptor_nombre}" UsoCFDI="{receptor_usocfdi}"/>
   <cfdi:Conceptos>{myconceptos}</cfdi:Conceptos>
-<cfdi:Impuestos TotalImpuestosTrasladados="268.00">
-    <cfdi:Traslados>
-      <cfdi:Traslado Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="268.00"/>
-  </cfdi:Traslados>
+<cfdi:Impuestos TotalImpuestosTrasladados="{total_impuestos_trasladados}">
+{mytotal_traslados}
 </cfdi:Impuestos>
 </cfdi:Comprobante>
 """.format(**locals())
   print ("cfdi ok")
 
-  xdoc = ET.fromstring(cfdi)
+  #xdoc = ET.fromstring(cfdi)
   #conceptos = xdoc.xpath('//cfdi:Comprobante/cfdi:Conceptos')
   #print(conceptos)
  # conceptos = ET.SubElement(xdoc, 'Conceptos')
   #print(ET.tostring(conceptos, pretty_print=True))
-  cfdi = ET.tostring(xdoc)
+  #cfdi = ET.tostring(xdoc)
   # print(ET.tostring(xdoc, pretty_print=True))
   print(cfdi)
   print("=========")
