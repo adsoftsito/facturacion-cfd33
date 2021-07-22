@@ -1,5 +1,6 @@
 # encoding: utf-8
-from flask import Flask, request
+from flask import Flask, request, make_response
+from flask_cors import CORS, cross_origin
 
 from facturacion_moderna import facturacion_moderna
 from datetime import datetime, timedelta
@@ -16,6 +17,12 @@ sys.setdefaultencoding('utf8')
 app = Flask(__name__,
            static_url_path='',
            static_folder='comprobantes')
+
+#CORS(app)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+#cors = CORS(app)
+#app.config['CORS_HEADERS'] = 'Content-Type'
+#app.config['CORS_HEADERS'] = 'Access-Control-Allow-Headers'
 
 mycomprobante="";
 content="";
@@ -212,11 +219,17 @@ def genera_xml(rfc_emisor):
   return cfdi
 
 
-@app.route('/', methods=['GET','POST'])
+
+@app.route('/', methods=['POST','OPTIONS'])
 def hello_world():
+  print (request.method)
+  if request.method == "OPTIONS": # CORS preflight
+    return _build_cors_prelight_response()
+
   global serie, folio, content
+  print (request)
   content = request.json
-  #print (content)
+  print (content)
   #content = json.dumps(content)
 #  serie = content["serie"]
 #  folio = content["folio"]
@@ -229,6 +242,14 @@ def hello_world():
   data_set = {"xml": result + '.xml', "pdf": result + '.pdf'}
 
   return json.dumps(data_set)
+
+def _build_cors_prelight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add('Access-Control-Allow-Headers', "*")
+    response.headers.add('Access-Control-Allow-Methods', "*")
+    return response
+
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0')
