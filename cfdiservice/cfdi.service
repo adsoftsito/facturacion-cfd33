@@ -1,3 +1,5 @@
+# /etc/systemd/system/cfdi.service
+
 [Unit]
 Description=Gunicorn instance to serve cfdi
 After=network.target
@@ -5,8 +7,7 @@ After=network.target
 [Service]
 User=adsoft
 Group=adsoft
-WorkingDirectory=/home/adsoft/cfdi
-#ExecStart=/usr/bin/gunicorn --workers 1 --bind unix:run.sock -u adsoft -g nginx wsgi:app
+WorkingDirectory=/home/adsoft/cfdi33
 ExecStart=/usr/bin/gunicorn -b 0.0.0.0:8081 --workers=5 --timeout=20 wsgi:app
 
 [Install]

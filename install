@@ -1,0 +1,8 @@
+sudo yum group install "Development Tools"
+# install openssl 1.1.1.c
+
+https://cloudwafer.com/blog/installing-openssl-on-centos-7/
+
+
+# install M2Crypto
+sudo yum install M2Crypto
