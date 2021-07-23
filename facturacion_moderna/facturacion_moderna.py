@@ -72,7 +72,10 @@ class Cliente:
     except WebFault, e:
       self.__dict__['codigo_error'] = e.fault.faultcode
       self.__dict__['error'] = e.fault.faultstring
+      print ("**** err *****")
+
       if self.debug:
+        print ("**** err *****")
         self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % (cliente.last_sent(), e.fault.faultcode, e.fault.faultstring))
         #self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % ("--", e.fault.faultcode, e.fault.faultstring))
 

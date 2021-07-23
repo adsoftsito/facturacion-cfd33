@@ -67,9 +67,11 @@ def prueba_timbrado(debug = False):
         with open(("%s.%s" % (comprobante, extension)), 'wb' if extension in ['pdf','png'] else 'w') as f: f.write(getattr(cliente, extension))
         print("%s almacenado correctamente en %s.%s" % (extension.upper(), comprobante, extension))
     print 'Timbrado exitoso'
+    return 'ok'
   else:
+    print ("error timbrar ")
     print("[%s] - %s" % (cliente.codigo_error, cliente.error))
-
+    return cliente.error
 
 def sella_xml(cfdi, numero_certificado, archivo_cer, archivo_pem):
   keys = RSA.load_key(archivo_pem)
@@ -136,7 +138,7 @@ def genera_xml(rfc_emisor):
 
   if mytotal_traslados != "":
       mytotal_traslados = "<cfdi:Traslados>" + mytotal_traslados + "</cfdi:Traslados>"
-  3#print("total traslados ...")
+  #print("total traslados ...")
   print(mytotal_traslados)
 
 
@@ -236,10 +238,21 @@ def hello_world():
 #  print (serie)
 #  print (folio)
 
-  prueba_timbrado()
-  result = (request.host_url) + mycomprobante
 
-  data_set = {"xml": result + '.xml', "pdf": result + '.pdf'}
+  try:
+    myres = prueba_timbrado()
+    result = (request.host_url) + mycomprobante
+    print (' resultado : ', myres)
+    if (myres=='ok'):
+      data_set = {"xml": result + '.xml', "pdf": result + '.pdf'}
+    else:
+      data_set = {"error":  myres}
+      
+  except WebFault, e:
+    print ("error web ", e);
+
+  except Exception, e:
+    print ("error exception ", e)
 
   return json.dumps(data_set)
 
