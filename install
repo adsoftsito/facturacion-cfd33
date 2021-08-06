@@ -6,3 +6,11 @@ https://cloudwafer.com/blog/installing-openssl-on-centos-7/
 
 # install M2Crypto
 sudo yum install M2Crypto
+
+
+red hat
+-------------------------
+sudo wget http://mirror.centos.org/centos/7/os/x86_64/Packages/m2crypto-0.21.1-17.el7.x86_64.rpm
+sudo yum install m2crypto-0.21.1-17.el7.x86_64.rpm
+sudo pip2 install gunicorn
+

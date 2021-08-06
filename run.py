@@ -12,6 +12,8 @@ import os
 import json
 import sys
 reload(sys)
+import requests
+
 sys.setdefaultencoding('utf8')
 
 app = Flask(__name__,
@@ -31,6 +33,12 @@ def prueba_timbrado(debug = False):
   
   # RFC utilizado para el ambiente de pruebas
   rfc_emisor = "ESI920427886"
+
+  url = 'http://18.116.12.129:8082/graphql/'
+  json= {'query' : '{ emisorcer(rfc:"CETA761021") { certificado filekey }}' }
+  r = requests.post(url=url, json=json)
+  print(r.json()) 
+
   
   # Archivos del CSD de prueba proporcionados por el SAT.
   # ver http://developers.facturacionmoderna.com/webroot/CertificadosDemo-FacturacionModerna.zip
