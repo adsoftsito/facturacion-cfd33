@@ -37,8 +37,18 @@ def prueba_timbrado(debug = False):
   url = 'http://18.116.12.129:8082/graphql/'
   json= {'query' : '{ emisorcer(rfc:"CETA761021") { certificado filekey }}' }
   r = requests.post(url=url, json=json)
-  print(r.json()) 
+  print(r.text) 
 
+  print("The type of object is: ", type(r.text))
+  stud_obj = eval(r.text)
+  #stud_obj = json.loads(str(r.text))
+  #stud_obj = str(r.text)
+  print(stud_obj['data']['emisorcer']['certificado'])
+  print(stud_obj['data']['emisorcer']['filekey'])
+
+  print("The type of object is: ", type(stud_obj))
+
+  #y = json.loads(stud_obj)
   
   # Archivos del CSD de prueba proporcionados por el SAT.
   # ver http://developers.facturacionmoderna.com/webroot/CertificadosDemo-FacturacionModerna.zip
@@ -85,6 +95,10 @@ def sella_xml(cfdi, numero_certificado, archivo_cer, archivo_pem):
   keys = RSA.load_key(archivo_pem)
   cert_file = open(archivo_cer, 'r')
   cert = base64.b64encode(cert_file.read())
+  print ('keys')
+  print keys
+  print ('cert')
+  print cert
   xdoc = ET.fromstring(cfdi)
 
   comp = xdoc.get('Comprobante')
@@ -256,7 +270,7 @@ def hello_world():
     else:
       data_set = {"error":  myres}
       
-  except WebFault, e:
+  except e:
     print ("error web ", e);
 
   except Exception, e:
