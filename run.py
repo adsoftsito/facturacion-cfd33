@@ -38,22 +38,34 @@ def prueba_timbrado(debug = False):
   json= {'query' : '{ emisorcer(rfc:"CETA761021") { certificado filekey }}' }
   r = requests.post(url=url, json=json)
   print(r.text) 
-
-  print("The type of object is: ", type(r.text))
   stud_obj = eval(r.text)
-  #stud_obj = json.loads(str(r.text))
-  #stud_obj = str(r.text)
-  print(stud_obj['data']['emisorcer']['certificado'])
-  print(stud_obj['data']['emisorcer']['filekey'])
 
-  print("The type of object is: ", type(stud_obj))
+  urlcert = stud_obj['data']['emisorcer']['certificado']
+  #print(stud_obj['data']['emisorcer']['filekey'])
+ 
+  print urlcert
+
+
+  #url = 'https://firebasestorage.googleapis.com/v0/b/waves-storage.appspot.com/o/CETA7610219C9%2Fdemo.cer?alt=media&token=4d8744f6-477c-47c3-8dee-01bf1e0127c6'
+  #json= {'query' : '{ emisorcer(rfc:"CETA761021") { certificado filekey }}' }
+  r = requests.get(url=urlcert)
+  # print(r.text) 
+
+  print("The type of object is: ", type(r.content))
+  cert_obj = r.content
+  print (cert_obj)
+
+  # print(stud_obj['data']['emisorcer']['certificado'])
+  #print(stud_obj['data']['emisorcer']['filekey'])
+
+  # print("The type of object is: ", type(stud_obj))
 
   #y = json.loads(stud_obj)
   
   # Archivos del CSD de prueba proporcionados por el SAT.
   # ver http://developers.facturacionmoderna.com/webroot/CertificadosDemo-FacturacionModerna.zip
   numero_certificado = "20001000000200000192"
-  archivo_cer = "utilerias/certificados/20001000000200000192.cer"
+  archivo_cer =  "utilerias/certificados/20001000000200000192.cer"
   archivo_pem = "utilerias/certificados/20001000000200000192.key.pem"
   
   # Datos de acceso al ambiente de pruebas
@@ -62,7 +74,7 @@ def prueba_timbrado(debug = False):
   user_password = "b9ec2afa3361a59af4b4d102d3f704eabdf097d4"
 
   cfdi = genera_xml(rfc_emisor)
-  cfdi = sella_xml(cfdi, numero_certificado, archivo_cer, archivo_pem)
+  cfdi = sella_xml(cfdi, numero_certificado, cert_obj, archivo_pem)
 
   params = {'emisorRFC': rfc_emisor, 'UserID': user_id, 'UserPass': user_password}
   options = {'generarCBB': False, 'generarPDF': True, 'generarTXT': False}
@@ -91,14 +103,22 @@ def prueba_timbrado(debug = False):
     print("[%s] - %s" % (cliente.codigo_error, cliente.error))
     return cliente.error
 
-def sella_xml(cfdi, numero_certificado, archivo_cer, archivo_pem):
+def sella_xml(cfdi, numero_certificado, cert_obj, archivo_pem):
   keys = RSA.load_key(archivo_pem)
-  cert_file = open(archivo_cer, 'r')
-  cert = base64.b64encode(cert_file.read())
+  #print ('archivo cer')
+  #print archivo_cer
+  #cert_file =  open(archivo_cer, 'r')
+  #print cert_file.read()
+  #print cert_obj
+  
+  cert = base64.b64encode(cert_obj)
+  #cert = base64.b64encode(cert_file.read())
+
   print ('keys')
   print keys
   print ('cert')
   print cert
+  #print certdemo
   xdoc = ET.fromstring(cfdi)
 
   comp = xdoc.get('Comprobante')
