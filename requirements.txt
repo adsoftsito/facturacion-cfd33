@@ -5,7 +5,7 @@ itsdangerous==1.1.0
 Jinja2==2.10
 MarkupSafe==1.1.0
 Werkzeug==0.14.1
-suds==0.4
+suds==0.3.8
 lxml==4.6.3
 ImportDoctor==1.2.2.3
 certifi==2021.5.30

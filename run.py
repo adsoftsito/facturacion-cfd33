@@ -11,10 +11,14 @@ import hashlib
 import os
 import json
 import sys
-reload(sys)
+import importlib
+
+#reload(sys)
+importlib.reload(sys)
+
 import requests
 
-sys.setdefaultencoding('utf8')
+#sys.setdefaultencoding('utf8')
 
 app = Flask(__name__,
            static_url_path='',
@@ -34,22 +38,22 @@ def prueba_timbrado(debug = False):
   # RFC utilizado para el ambiente de pruebas
   rfc_emisor = "ESI920427886"
 
-  url = 'http://18.116.12.129:8082/graphql/'
+  url = 'http://198.251.74.249:8080/graphql/'
   json= {'query' : '{ emisorcer(rfc:"CETA761021") { certificado filekey }}' }
   r = requests.post(url=url, json=json)
   print(r.text) 
   stud_obj = eval(r.text)
 
   urlcert = stud_obj['data']['emisorcer']['certificado']
-  #print(stud_obj['data']['emisorcer']['filekey'])
+  print(stud_obj['data']['emisorcer']['filekey'])
  
-  print urlcert
+  print (urlcert)
 
 
   #url = 'https://firebasestorage.googleapis.com/v0/b/waves-storage.appspot.com/o/CETA7610219C9%2Fdemo.cer?alt=media&token=4d8744f6-477c-47c3-8dee-01bf1e0127c6'
   #json= {'query' : '{ emisorcer(rfc:"CETA761021") { certificado filekey }}' }
   r = requests.get(url=urlcert)
-  # print(r.text) 
+  print(r.text) 
 
   print("The type of object is: ", type(r.content))
   cert_obj = r.content
@@ -80,23 +84,36 @@ def prueba_timbrado(debug = False):
   options = {'generarCBB': False, 'generarPDF': True, 'generarTXT': False}
   cliente = facturacion_moderna.Cliente(url_timbrado, params, debug)
 
+  print ('xml')
+  #cfdi = cfdi.replace("b'","")
+  cfdi = cfdi.decode('utf8')
+  print (cfdi)
+  print ('xml')
+
   if cliente.timbrar(cfdi, options):
     print ('timbre ok')
     folder = 'comprobantes'
     if not os.path.exists(folder): os.makedirs(folder)
     comprobante = os.path.join(folder, cliente.uuid)
-    #print (comprobante)
+    print (comprobante)
 
     global mycomprobante
     mycomprobante = cliente.uuid
 
-    #print(mycomprobante)
-
+    print(mycomprobante)
+ 
     for extension in ['xml', 'pdf', 'png', 'txt']:
       if hasattr(cliente, extension):
-        with open(("%s.%s" % (comprobante, extension)), 'wb' if extension in ['pdf','png'] else 'w') as f: f.write(getattr(cliente, extension))
+        print(cliente)
+        print(extension)
+
+        myfile = getattr(cliente, extension)
+        if extension in ['xml']:
+          myfile = myfile.decode('utf8')
+
+        with open(("%s.%s" % (comprobante, extension)), 'wb' if extension in ['pdf','png'] else 'w') as f: f.write(myfile)
         print("%s almacenado correctamente en %s.%s" % (extension.upper(), comprobante, extension))
-    print 'Timbrado exitoso'
+    print ('Timbrado exitoso')
     return 'ok'
   else:
     print ("error timbrar ")
@@ -115,11 +132,12 @@ def sella_xml(cfdi, numero_certificado, cert_obj, archivo_pem):
   #cert = base64.b64encode(cert_file.read())
 
   print ('keys')
-  print keys
+  print (keys)
   print ('cert')
-  print cert
-  #print certdemo
-  xdoc = ET.fromstring(cfdi)
+  print (cert)
+  print (cfdi)
+  #xdoc = ET.fromstring(bytes(cfdi, encoding='utf8'))
+  xdoc = ET.fromstring(str(cfdi).encode('utf8'))
 
   comp = xdoc.get('Comprobante')
   xdoc.attrib['Certificado'] = cert
@@ -128,7 +146,8 @@ def sella_xml(cfdi, numero_certificado, cert_obj, archivo_pem):
   xsl_root = ET.parse('utilerias/xslt33/cadenaoriginal_3_3.xslt')
   xsl = ET.XSLT(xsl_root)
   cadena_original = xsl(xdoc)
-  digest = hashlib.new('sha256', str(cadena_original)).digest()
+  print (cadena_original)
+  digest = hashlib.new('sha256', str(cadena_original).encode('utf8')).digest()
   sello = base64.b64encode(keys.sign(digest, "sha256"))
 
   comp = xdoc.get('Comprobante')
@@ -293,7 +312,7 @@ def hello_world():
   except e:
     print ("error web ", e);
 
-  except Exception, e:
+  except Exception as e:
     print ("error exception ", e)
 
   return json.dumps(data_set)

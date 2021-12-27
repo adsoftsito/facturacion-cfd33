@@ -15,7 +15,9 @@ class Cliente:
     self.url = url
     self.opciones = {}
     if self.debug: self._activa_debug()
-    for key, value in opciones.iteritems():
+    print (opciones)
+
+    for key, value in opciones.items():
       if key in ['emisorRFC', 'UserID', 'UserPass']:
         self.opciones.update({ key: value })
     print ('init client ok')
@@ -23,6 +25,9 @@ class Cliente:
   def timbrar(self, src, opciones = { 'generarCBB': False, 'generarTXT': False, 'generarPDF': False}):
     try:
       # en caso de que src sea una ruta a archivo y no una cadena, abrir y cargar ruta
+      print('cfdi a timbrar')
+      print(src)
+      src = src.encode('utf8')
       #print(src)
       #print(self)
       # print(opciones)
@@ -42,7 +47,13 @@ class Cliente:
         ssl._create_default_https_context = _create_unverified_https_context
 
       if os.path.isfile(src): src = open(src, 'r').read()
-      opciones['text2CFDI'] = base64.b64encode(src)
+      #src=base64.b64decode(src).decode('utf-8')
+      # b&apos;
+      text2cfdi = base64.b64encode(src).decode('utf8')
+      print(text2cfdi)
+
+ 
+      opciones['text2CFDI'] = text2cfdi
       self.opciones.update(opciones)
       #print(opciones)      
       #print(self.url)
@@ -69,7 +80,7 @@ class Cliente:
         #self.logger.info("\nSOAP response:\n %s" % cliente.last_received())
 
       return True
-    except WebFault, e:
+    except WebFault as e:
       self.__dict__['codigo_error'] = e.fault.faultcode
       self.__dict__['error'] = e.fault.faultstring
       print ("**** err *****")
@@ -80,8 +91,8 @@ class Cliente:
         #self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % ("--", e.fault.faultcode, e.fault.faultstring))
 
       return False
-    except Exception, e:
-      print e
+    except Exception as e:
+      print (e)
       self.__dict__['codigo_error'] = 'Error desconocido'
       self.__dict__['error'] = e.message
       return False
@@ -96,13 +107,13 @@ class Cliente:
         self.logger.info("\nSOAP request:\n %s" % cliente.last_sent())
         self.logger.info("\nSOAP response:\n %s" % cliente.last_received())
       return True
-    except WebFault, e:
+    except WebFault as e:
       self.__dict__['codigo_error'] = e.fault.faultcode
       self.__dict__['error'] = e.fault.faultstring
       if self.debug:
         self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % (cliente.last_sent(), e.fault.faultcode, e.fault.faultstring))
       return False
-    except Exception, e:
+    except Exception as e:
       self.__dict__['codigo_error'] = 'Error desconocido'
       self.__dict__['error'] = e.message
       return False
@@ -123,13 +134,13 @@ class Cliente:
         self.logger.info("\nSOAP request:\n %s" % cliente.last_sent())
         self.logger.info("\nSOAP response:\n %s" % cliente.last_received())
       return True
-    except WebFault, e:
+    except WebFault as e:
       self.__dict__['codigo_error'] = e.fault.faultcode
       self.__dict__['error'] = e.fault.faultstring
       if self.debug:
         self.logger.error("\nSOAP request:\n %s\nSOAP response: [%s] - %s" % (cliente.last_sent(), e.fault.faultcode, e.fault.faultstring))
       return False
-    except Exception, e:
+    except Exception as e:
       self.__dict__['codigo_error'] = 'Error desconocido'
       self.__dict__['error'] = e.message
       return False
