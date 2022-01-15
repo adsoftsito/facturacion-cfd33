@@ -143,7 +143,7 @@ def sella_xml(cfdi, numero_certificado, cert_obj, archivo_pem):
   xdoc.attrib['Certificado'] = cert
   xdoc.attrib['NoCertificado'] = numero_certificado
 
-  xsl_root = ET.parse('utilerias/xslt33/cadenaoriginal_3_3.xslt')
+  xsl_root = ET.parse('utilerias/xslt33/cadenaoriginal_4_0.xslt')
   xsl = ET.XSLT(xsl_root)
   cadena_original = xsl(xdoc)
   print (cadena_original)
@@ -175,6 +175,8 @@ def genera_xml(rfc_emisor):
   tipodecomprobante=content["tipodecomprobante"] 
   metodopago=content["metodopago"] 
   lugarexpedicion=content["lugarexpedicion"] 
+  exportacion=content["exportacion"] 
+
   emisor = content["emisor"]
   receptor = content["receptor"]
   conceptos = content["conceptos"]
@@ -189,13 +191,13 @@ def genera_xml(rfc_emisor):
   mytotal_traslados = ""
 
   for totaltraslado in total_traslados:
-    # base = traslado["base"]
+    totaltraslado_base = totaltraslado["base"]
     totaltraslado_impuesto = totaltraslado["impuesto"]
     totaltraslado_tipofactor = totaltraslado["tipofactor"]
     totaltraslado_tasaocuota = totaltraslado["tasaocuota"]
     totaltraslado_importe = totaltraslado["importe"]
 
-    mytotal_traslados= mytotal_traslados + """<cfdi:Traslado Impuesto="{totaltraslado_impuesto}" TipoFactor="{totaltraslado_tipofactor}" TasaOCuota="{totaltraslado_tasaocuota}" Importe="{totaltraslado_importe}"/>""".format(**locals())
+    mytotal_traslados= mytotal_traslados + """<cfdi:Traslado Base="{totaltraslado_base}" Impuesto="{totaltraslado_impuesto}" TipoFactor="{totaltraslado_tipofactor}" TasaOCuota="{totaltraslado_tasaocuota}" Importe="{totaltraslado_importe}"/>""".format(**locals())
 
   if mytotal_traslados != "":
       mytotal_traslados = "<cfdi:Traslados>" + mytotal_traslados + "</cfdi:Traslados>"
@@ -215,6 +217,7 @@ def genera_xml(rfc_emisor):
     valorunitario = concepto["valorunitario"]
     concepto_importe = concepto["importe"]
     descuento = concepto["descuento"]
+    objetoimp = concepto["objetoimp"]
     impuestos = concepto["impuestos"]
     print('impuestos ---')
     traslados = impuestos["traslados"]
@@ -236,7 +239,7 @@ def genera_xml(rfc_emisor):
     #print(" traslados ...")
     #print(mytraslados)
   
-    myconceptos=myconceptos+"""<cfdi:Concepto ClaveProdServ="{claveprodserv}" NoIdentificacion="{noidentificacion}" Cantidad="{cantidad}" ClaveUnidad="{claveunidad}" Unidad="{unidad}" Descripcion="{descripcion}" ValorUnitario="{valorunitario}" Importe="{concepto_importe}" Descuento="{descuento}">
+    myconceptos=myconceptos+"""<cfdi:Concepto ClaveProdServ="{claveprodserv}" NoIdentificacion="{noidentificacion}" Cantidad="{cantidad}" ClaveUnidad="{claveunidad}" Unidad="{unidad}" Descripcion="{descripcion}" ValorUnitario="{valorunitario}" Importe="{concepto_importe}" Descuento="{descuento}" ObjetoImp="{objetoimp}">
       <cfdi:Impuestos>
        {mytraslados}  
 </cfdi:Impuestos>
@@ -252,15 +255,17 @@ def genera_xml(rfc_emisor):
   receptor_rfc = receptor["rfc"] 
   receptor_nombre = receptor["nombre"]
   receptor_usocfdi = receptor["usocfdi"]
+  receptor_regimenfiscalreceptor = receptor["regimenfiscalreceptor"]
+  receptor_domiciliofiscalreceptor = receptor["domiciliofiscalreceptor"]
 
 
   #print('conceptos')
   #print(conceptos)
   #print('----------')
   cfdi = """<?xml version="1.0" encoding="UTF-8"?>
-<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd" Version="3.3" Serie="{serie}" Folio="{folio}" Fecha="{fecha_actual}" Sello="" FormaPago="{formapago}" NoCertificado="" Certificado="" CondicionesDePago="{condicionesdepago}" SubTotal="{subtotal}" Descuento="{totaldescuento}" Moneda="{moneda}" Total="{total}" TipoDeComprobante="{tipodecomprobante}" MetodoPago="{metodopago}" LugarExpedicion="{lugarexpedicion}">
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd" Version="4.0" Serie="{serie}" Folio="{folio}" Exportacion="{exportacion}" Fecha="{fecha_actual}" Sello="" FormaPago="{formapago}" NoCertificado="" Certificado="" CondicionesDePago="{condicionesdepago}" SubTotal="{subtotal}" Descuento="{totaldescuento}" Moneda="{moneda}" Total="{total}" TipoDeComprobante="{tipodecomprobante}" MetodoPago="{metodopago}" LugarExpedicion="{lugarexpedicion}">
   <cfdi:Emisor Rfc="{emisor_rfc}" Nombre="{emisor_nombre}" RegimenFiscal="{emisor_regimenfiscal}"/>
-  <cfdi:Receptor Rfc="{receptor_rfc}" Nombre="{receptor_nombre}" UsoCFDI="{receptor_usocfdi}"/>
+  <cfdi:Receptor Rfc="{receptor_rfc}" Nombre="{receptor_nombre}" UsoCFDI="{receptor_usocfdi}" RegimenFiscalReceptor="{receptor_regimenfiscalreceptor}" DomicilioFiscalReceptor="{receptor_domiciliofiscalreceptor}"/>
   <cfdi:Conceptos>{myconceptos}</cfdi:Conceptos>
 <cfdi:Impuestos TotalImpuestosTrasladados="{total_impuestos_trasladados}">
 {mytotal_traslados}
